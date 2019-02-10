@@ -32,11 +32,10 @@ app.get('/Users', function (req, res) {
     console.log('body is ', req.body);
 
     var body = req.body;
-    
+
     sql.connect(config).then(pool => {
         return pool.request()
         .input('SensorId', sql.UniqueIdentifier, body.SensorId)
-        .input('GasId', sql.UniqueIdentifier, body.GasId)
         .input('ReadingVolts', sql.Decimal, body.ReadingVolts)
         .input('SensorResistance', sql.Decimal, body.SensorResistance)
         .input('KnownConcentrationSensorResistance', sql.Decimal, body.KnownConcentrationSensorResistance)
