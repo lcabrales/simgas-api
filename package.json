@@ -7,7 +7,7 @@
     "express": "^4.16.4",
     "express4-tedious": "^0.3.0",
     "msnodesqlv8": "^0.6.12",
-    "mssql": "^4.3.0"
+    "mssql": "^4.3.1"
   },
   "devDependencies": {},
   "scripts": {
