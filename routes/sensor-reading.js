@@ -14,15 +14,19 @@ router.get('/', function(req, res) {
 
     sql.connect(config).then(pool => {
         return pool.request()
-        .input('SensorId', sql.UniqueIdentifier, body.SensorId)
-        .input('AirQualityId', sql.UniqueIdentifier, body.AirQualityId)
-        .input('StartDate', sql.DateTime, body.StartDate)
-        .input('EndDate', sql.DateTime, body.EndDate)
+        .input('SensorId', sql.UniqueIdentifier, query.SensorId)
+        .input('AirQualityId', sql.UniqueIdentifier, query.AirQualityId)
+        .input('StartDate', sql.DateTime, query.StartDate)
+        .input('EndDate', sql.DateTime, query.EndDate)
         .execute('usp_SensorReading_Get')
     }).then(result => {
+        sql.close();
+
         console.log(result)
-        res.json(helper.getResponseObject(result, 200, "OK"));
+        res.json(helper.getResponseObject(result.recordset, 200, "OK"));
     }).catch(err => {
+        sql.close();
+
         console.log(err);
         res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
     })
@@ -43,11 +47,15 @@ router.post('/', function(req, res) {
         .input('GasPpm', sql.Decimal, body.GasPpm)
         .execute('usp_SensorReading_Create')
     }).then(result => {
+        sql.close();
+
         console.log(result)
         res.json(helper.getResponseObject(result.recordset[0], 200, "OK"));
     }).catch(err => {
+        sql.close();
+
         console.log(err);
-        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"));
     })
 });
 
