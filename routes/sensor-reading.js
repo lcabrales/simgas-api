@@ -1,6 +1,7 @@
 var express = require("express");
 var router = express.Router();
 var database = require("../database");
+var helper = require("../helper");
 
 var sql = database.sql;
 var config = database.config;
@@ -21,9 +22,10 @@ router.post('/', function(req, res) {
         .execute('usp_SensorReading_Create')
     }).then(result => {
         console.log(result)
-        res.json(result.recordset[0]);
+        res.json(helper.getResponseObject(result.recordset[0], 200, "OK"));
     }).catch(err => {
         console.log(err);
+        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
     })
 });
 
