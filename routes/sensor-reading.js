@@ -6,6 +6,28 @@ var helper = require("../helper");
 var sql = database.sql;
 var config = database.config;
 
+router.get('/', function(req, res) {
+    console.log('receiving data ...');
+    console.log('query is ', req.query);
+
+    var query = req.query;
+
+    sql.connect(config).then(pool => {
+        return pool.request()
+        .input('SensorId', sql.UniqueIdentifier, body.SensorId)
+        .input('AirQualityId', sql.UniqueIdentifier, body.AirQualityId)
+        .input('StartDate', sql.DateTime, body.StartDate)
+        .input('EndDate', sql.DateTime, body.EndDate)
+        .execute('usp_SensorReading_Get')
+    }).then(result => {
+        console.log(result)
+        res.json(helper.getResponseObject(result, 200, "OK"));
+    }).catch(err => {
+        console.log(err);
+        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+    })
+});
+
 router.post('/', function(req, res) {
     console.log('receiving data ...');
     console.log('body is ', req.body);
