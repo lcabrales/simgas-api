@@ -25,6 +25,29 @@ router.get('/', function(req, res) {
         var promises = [];
 
         result.recordset.forEach(element => {
+
+            promises.push(globalPool.request()
+                .input('BoardId', sql.UniqueIdentifier, element.BoardId)
+                .execute('usp_Board_Get')
+                .then(result => {
+                    element.Board = result.recordset[0]
+                    delete element.BoardId
+                }).catch(err => {
+                    console(err)
+                })
+            )
+
+            promises.push(globalPool.request()
+                .input('GasId', sql.UniqueIdentifier, element.GasId)
+                .execute('usp_Gas_Get')
+                .then(result => {
+                    element.Gas = result.recordset[0]
+                    delete element.GasId
+                }).catch(err => {
+                    console(err)
+                })
+            )
+
             element.LastSensorReading = null
             promises.push(globalPool.request()
                 .input('SensorId', sql.UniqueIdentifier, element.SensorId)
@@ -40,17 +63,10 @@ router.get('/', function(req, res) {
         Promise.all(promises).then(() => {
             sql.close()
         
-            // console.log(result)
+            console.log(result)
             res.json(helper.getResponseObject(result.recordset, 200, "OK"));
         });  
-    })
-    // .then(result => {
-    //     sql.close()
-        
-    //     // console.log(result)
-    //     res.json(helper.getResponseObject(result.recordset, 200, "OK"));
-    // })
-    .catch(err => {
+    }).catch(err => {
         sql.close();
 
         console.log(err);
