@@ -11,18 +11,46 @@ router.get('/', function(req, res) {
     console.log('query is ', req.query);
 
     var query = req.query;
+    var globalPool;
 
     sql.connect(config).then(pool => {
+        globalPool = pool
         return pool.request()
         .input('SensorId', sql.UniqueIdentifier, query.SensorId)
         .input('BoardId', sql.UniqueIdentifier, query.BoardId)
         .execute('usp_Sensor_Get')
     }).then(result => {
-        sql.close();
+        globalResult = result
 
-        console.log(result)
-        res.json(helper.getResponseObject(result.recordset, 200, "OK"));
-    }).catch(err => {
+        var promises = [];
+
+        result.recordset.forEach(element => {
+            element.LastSensorReading = null
+            promises.push(globalPool.request()
+                .input('SensorId', sql.UniqueIdentifier, element.SensorId)
+                .execute('usp_SensorReading_Get_Latest')
+                .then(result => {
+                    element.LastSensorReading = result.recordset[0]
+                }).catch(err => {
+                    console(err)
+                })
+            )
+        })
+
+        Promise.all(promises).then(() => {
+            sql.close()
+        
+            // console.log(result)
+            res.json(helper.getResponseObject(result.recordset, 200, "OK"));
+        });  
+    })
+    // .then(result => {
+    //     sql.close()
+        
+    //     // console.log(result)
+    //     res.json(helper.getResponseObject(result.recordset, 200, "OK"));
+    // })
+    .catch(err => {
         sql.close();
 
         console.log(err);
