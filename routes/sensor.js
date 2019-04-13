@@ -61,10 +61,26 @@ router.get('/', function(req, res) {
         })
 
         Promise.all(promises).then(() => {
-            sql.close()
-        
-            console.log(result)
-            res.json(helper.getResponseObject(result.recordset, 200, "OK"));
+            promises = [];
+            result.recordset.forEach(element => {
+                promises.push(globalPool.request()
+                        .input('AirQualityId', sql.UniqueIdentifier, element.LastSensorReading.AirQualityId)
+                        .execute('usp_AirQuality_Get')
+                        .then(result => {
+                            element.LastSensorReading.AirQuality = result.recordset[0]
+                            delete element.LastSensorReading.AirQualityId
+                        }).catch(err => {
+                            console(err)
+                        })
+                    )
+            })
+
+            Promise.all(promises).then(() => {
+                sql.close()
+            
+                console.log(result)
+                res.json(helper.getResponseObject(result.recordset, 200, "OK"));
+            });
         });  
     }).catch(err => {
         sql.close();
