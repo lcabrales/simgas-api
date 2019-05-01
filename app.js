@@ -11,7 +11,8 @@ var gasRouter = require('./routes/gas');
 var boardRouter = require('./routes/board');
 var locationRouter = require('./routes/location');
 var userRouter = require('./routes/user');
-var roleUser = require('./routes/role');
+var roleRouter = require('./routes/role');
+var sessionRouter = require('./routes/session');
 
 app.use('/SensorReading', sensorReadingRouter);
 app.use('/Sensor', sensorRouter);
@@ -20,7 +21,8 @@ app.use('/Gas', gasRouter);
 app.use('/Board', boardRouter);
 app.use('/Location', locationRouter);
 app.use('/User', userRouter);
-app.use('/Role', roleUser);
+app.use('/Role', roleRouter);
+app.use('/Session', sessionRouter);
 
 app.listen(3000, () => {
  console.log("Server running on port 3000");
