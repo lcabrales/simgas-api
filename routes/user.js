@@ -2,6 +2,7 @@ var express = require("express");
 var router = express.Router();
 var database = require("../database");
 var helper = require("../helper");
+var bcrypt = require("bcrypt-nodejs")
 
 var sql = database.sql;
 var config = database.config;
@@ -27,6 +28,36 @@ router.get('/', function(req, res) {
 
         console.log(err);
         res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+    })
+});
+
+router.post('/', function(req, res) {
+    console.log('receiving data ...');
+    console.log('body is ', req.body);
+
+    var body = req.body;
+
+    var passwordHash = bcrypt.hashSync(body.Password)
+
+    sql.connect(config).then(pool => {
+        return pool.request()
+        .input('RoleId', sql.UniqueIdentifier, body.RoleId)
+        .input('Username', sql.NVarChar, body.Username)
+        .input('FirstName', sql.NVarChar, body.FirstName)
+        .input('LastName', sql.NVarChar, body.LastName)
+        .input('Email', sql.NVarChar, body.Email)
+        .input('Password', sql.NVarChar, passwordHash)
+        .execute('usp_User_Create')
+    }).then(result => {
+        sql.close();
+
+        console.log(result)
+        res.json(helper.getResponseObject(result.recordset[0], 200, "OK"));
+    }).catch(err => {
+        sql.close();
+
+        console.log(err);
+        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"));
     })
 });
 

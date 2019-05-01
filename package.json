@@ -4,6 +4,7 @@
   "description": "simgas",
   "main": "app.js",
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
     "express": "^4.16.4",
     "express4-tedious": "^0.3.0",
     "msnodesqlv8": "^0.6.12",
