@@ -22,6 +22,7 @@ router.post('/login', function(req, res) {
         .execute('usp_User_Login')
     }).then(result => {
         if (result.recordset.length == 0) {
+            sql.close();
             res.json(helper.getResponseObject(null, 400, "User does not exist"))
             return;
         }
