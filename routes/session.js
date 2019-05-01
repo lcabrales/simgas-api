@@ -32,7 +32,7 @@ router.post('/login', function(req, res) {
 
         if (!success) {
             sql.close();
-            res.json(helper.getResponseObject(null, 400, "Invalid credentials"))
+            res.json(helper.getResponseObject(null, 401, "Invalid credentials"))
             return;
         }
 
