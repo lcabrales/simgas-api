@@ -33,7 +33,7 @@ router.get('/', function(req, res) {
                     element.Board = result.recordset[0]
                     delete element.BoardId
                 }).catch(err => {
-                    console(err)
+                    console.log(err)
                 })
             )
 
@@ -44,7 +44,7 @@ router.get('/', function(req, res) {
                     element.Gas = result.recordset[0]
                     delete element.GasId
                 }).catch(err => {
-                    console(err)
+                    console.log(err)
                 })
             )
 
@@ -55,7 +55,7 @@ router.get('/', function(req, res) {
                 .then(result => {
                     element.LastSensorReading = result.recordset[0]
                 }).catch(err => {
-                    console(err)
+                    console.log(err)
                 })
             )
         })
@@ -70,7 +70,7 @@ router.get('/', function(req, res) {
                             element.LastSensorReading.AirQuality = result.recordset[0]
                             delete element.LastSensorReading.AirQualityId
                         }).catch(err => {
-                            console(err)
+                            console.log(err)
                         })
                     )
             })
