@@ -6,7 +6,7 @@ var helper = require("../helper");
 var sql = database.sql;
 var config = database.config;
 
-router.get('/', function(req, res) {
+router.get('/SensorId/:SensorId', function(req, res) {
     console.log('receiving data ...');
     console.log('query is ', req.query);
 
@@ -14,8 +14,7 @@ router.get('/', function(req, res) {
 
     sql.connect(config).then(pool => {
         return pool.request()
-        .input('SensorId', sql.UniqueIdentifier, query.SensorId)
-        .input('AirQualityId', sql.UniqueIdentifier, query.AirQualityId)
+        .input('SensorId', sql.UniqueIdentifier, req.params.SensorId)
         .input('StartDate', sql.DateTime, query.StartDate)
         .input('EndDate', sql.DateTime, query.EndDate)
         .execute('usp_SensorReading_Get')
