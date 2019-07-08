@@ -13,16 +13,33 @@ router.get('/SensorId/:SensorId', function(req, res) {
     var query = req.query;
 
     sql.connect(config).then(pool => {
+        globalPool = pool
         return pool.request()
         .input('SensorId', sql.UniqueIdentifier, req.params.SensorId)
         .input('StartDate', sql.DateTime, query.StartDate)
         .input('EndDate', sql.DateTime, query.EndDate)
         .execute('usp_SensorReading_Get')
     }).then(result => {
-        sql.close();
+        var promises = [];
+        result.recordset.forEach(element => {
+            promises.push(globalPool.request()
+                    .input('AirQualityId', sql.UniqueIdentifier, element.AirQualityId)
+                    .execute('usp_AirQuality_Get')
+                    .then(result => {
+                        element.AirQuality = result.recordset[0]
+                        delete element.AirQualityId
+                    }).catch(err => {
+                        console.log(err)
+                    })
+                )
+        })
 
-        console.log(result)
-        res.json(helper.getResponseObject(result.recordset, 200, "OK"));
+        Promise.all(promises).then(() => {
+            sql.close()
+        
+            console.log(result)
+            res.json(helper.getResponseObject(result.recordset, 200, "OK"));
+        });
     }).catch(err => {
         sql.close();
 
