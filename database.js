@@ -1,12 +1,19 @@
-var sql = require('mssql/msnodesqlv8');
-var config = {
-  driver: 'msnodesqlv8',
-  connectionString: 'Driver={SQL Server Native Client 11.0};Server={MSI\\SQLEXPRESS};Database={SIMGAS};Trusted_Connection={yes};',
-};
- 
-sql.on('error', err => {
-    // ... error handler
-    console.log(err);
-})
+var mysql = require('mysql');
 
-module.exports = {config, sql};
+var config = {
+  host     : 'localhost',
+  user     : 'root',
+  password : 'admin',
+  database : 'simgas',
+  connectionLimit : 1000
+}
+
+var getConnection = function (){
+  return mysql.createConnection(config)
+}
+
+var getPool = function (){
+  return mysql.createPool(config)
+}
+
+module.exports = {getConnection, getPool};

@@ -4,92 +4,92 @@ var database = require("../database");
 var helper = require("../helper");
 var bcrypt = require("bcrypt-nodejs")
 
-var sql = database.sql;
-var config = database.config;
-
 router.get('/', function(req, res) {
     console.log('receiving data ...');
     console.log('query is ', req.query);
 
-    var query = req.query;
+    var connection = database.getConnection();
 
-    sql.connect(config).then(pool => {
-        return pool.request()
-        .input('UserId', sql.UniqueIdentifier, query.UserId)
-        .input('RoleId', sql.UniqueIdentifier, query.RoleId)
-        .execute('usp_User_Get')
-    }).then(result => {
-        sql.close();
+    let sql = 'CALL usp_User_Get(?,?)';
+    let params = [req.query.UserId, req.query.RoleId];
+ 
+    connection.query(sql, params, (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            return
+        }
 
-        console.log(result)
-        res.json(helper.getResponseObject(result.recordset, 200, "OK"));
-    }).catch(err => {
-        sql.close();
-
-        console.log(err);
-        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
-    })
+        console.log(results[0]);
+        res.json(helper.getResponseObject(results[0], 200, "OK"));
+    });
+    
+    connection.end();
 });
 
 router.post('/', function(req, res) {
     console.log('receiving data ...');
     console.log('body is ', req.body);
 
-    var body = req.body;
+    var connection = database.getConnection();
 
-    var passwordHash = bcrypt.hashSync(body.Password)
+    var passwordHash = bcrypt.hashSync(req.body.Password)
 
-    sql.connect(config).then(pool => {
-        return pool.request()
-        .input('RoleId', sql.UniqueIdentifier, body.RoleId)
-        .input('Username', sql.NVarChar, body.Username)
-        .input('FirstName', sql.NVarChar, body.FirstName)
-        .input('LastName', sql.NVarChar, body.LastName)
-        .input('Email', sql.NVarChar, body.Email)
-        .input('Password', sql.NVarChar, passwordHash)
-        .execute('usp_User_Create')
-    }).then(result => {
-        sql.close();
+    let sql = 'CALL usp_User_Create(?,?,?,?,?,?)';
+    let params = [
+        req.body.RoleId, 
+        req.body.Username,
+        req.body.FirstName,
+        req.body.LastName,
+        req.body.Email,
+        passwordHash
+    ];
+ 
+    connection.query(sql, params, (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            return
+        }
 
-        console.log(result)
-        res.json(helper.getResponseObject(result.recordset[0], 200, "OK"));
-    }).catch(err => {
-        sql.close();
-
-        console.log(err);
-        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"));
-    })
+        console.log(results[0]);
+        res.json(helper.getResponseObject(results[0], 200, "OK"));
+    });
+    
+    connection.end();
 });
 
 router.put('/', function(req, res) {
     console.log('receiving data ...');
     console.log('body is ', req.body);
 
-    var body = req.body;
+    var connection = database.getConnection();
 
-    var passwordHash = body.Password == null ? null : bcrypt.hashSync(body.Password)
+    var passwordHash = req.body.Password == null ? null : bcrypt.hashSync(req.body.Password)
 
-    sql.connect(config).then(pool => {
-        return pool.request()
-        .input('UserId', sql.UniqueIdentifier, body.UserId)
-        .input('RoleId', sql.UniqueIdentifier, body.RoleId)
-        .input('FirstName', sql.NVarChar, body.FirstName)
-        .input('LastName', sql.NVarChar, body.LastName)
-        .input('Email', sql.NVarChar, body.Email)
-        .input('Password', sql.NVarChar, passwordHash)
-        .input('LastModifiedBy', sql.NVarChar, body.LastModifiedBy)
-        .execute('usp_User_Update')
-    }).then(result => {
-        sql.close();
+    let sql = 'CALL usp_User_Update(?,?,?,?,?,?,?)';
+    let params = [
+        req.body.UserId, 
+        req.body.RoleId, 
+        req.body.FirstName,
+        req.body.LastName,
+        req.body.Email,
+        passwordHash,
+        req.body.LastModifiedBy
+    ];
+ 
+    connection.query(sql, params, (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            return
+        }
 
-        console.log(result)
-        res.json(helper.getResponseObject(result.recordset[0], 200, "OK"));
-    }).catch(err => {
-        sql.close();
-
-        console.log(err);
-        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"));
-    })
+        console.log(results[0]);
+        res.json(helper.getResponseObject(results[0], 200, "OK"));
+    });
+    
+    connection.end();
 });
 
 module.exports = router;

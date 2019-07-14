@@ -3,30 +3,27 @@ var router = express.Router();
 var database = require("../database");
 var helper = require("../helper");
 
-var sql = database.sql;
-var config = database.config;
-
 router.get('/', function(req, res) {
     console.log('receiving data ...');
     console.log('query is ', req.query);
 
-    var query = req.query;
+    var connection = database.getConnection();
 
-    sql.connect(config).then(pool => {
-        return pool.request()
-        .input('GasId', sql.UniqueIdentifier, query.GasId)
-        .execute('usp_Gas_Get')
-    }).then(result => {
-        sql.close();
+    let sql = 'CALL usp_Gas_Get(?)';
+    let params = [req.query.GasId];
+ 
+    connection.query(sql, params, (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            return
+        }
 
-        console.log(result)
-        res.json(helper.getResponseObject(result.recordset, 200, "OK"));
-    }).catch(err => {
-        sql.close();
+        console.log(results[0]);
+        res.json(helper.getResponseObject(results[0], 200, "OK"));
+    });
 
-        console.log(err);
-        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
-    })
+    connection.end();
 });
 
 module.exports = router;

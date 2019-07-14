@@ -4,62 +4,55 @@ var database = require("../database");
 var helper = require("../helper");
 var bcrypt = require("bcrypt-nodejs")
 
-var sql = database.sql;
-var config = database.config;
-
 router.post('/login', function(req, res) {
     console.log('receiving data ...');
     console.log('body is ', req.body);
 
-    var body = req.body;
-    var globalPool;
+    var connection = database.getConnection();
 
-    sql.connect(config).then(pool => {
-        globalPool = pool
-        
-        return pool.request()
-        .input('Username', sql.NVarChar, body.Username)
-        .execute('usp_User_Login')
-    }).then(result => {
-        if (result.recordset.length == 0) {
-            sql.close();
+    let sql = 'CALL usp_User_Login(?)';
+    let params = [req.body.Username];
+ 
+    connection.query(sql, params, (error, results, fields) => {
+        if (error) {
+            connection.end();
+            console.log(error);
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            return
+        }
+
+        console.log(results[0]);
+
+        if (results.length == 0 || results[0].lenght == 0 || !results[0][0]) {
+            connection.end();
             res.json(helper.getResponseObject(null, 400, "User does not exist"))
             return;
         }
 
-        var passwordHash = result.recordset[0].Password;
-        var success = bcrypt.compareSync(body.Password, passwordHash)
+        var passwordHash = results[0][0].Password;
+        var success = bcrypt.compareSync(req.body.Password, passwordHash)
 
         if (!success) {
-            sql.close();
+            connection.end();
             res.json(helper.getResponseObject(null, 401, "Invalid credentials"))
             return;
         }
 
-        var promises = [];
-        var user;
+        let sql = 'CALL usp_User_Get(?,?,?)';
+        let params = [null, null, req.body.Username];
 
-        promises.push(globalPool.request()
-            .input('Username', sql.UniqueIdentifier, body.Username)
-            .execute('usp_User_Get')
-            .then(result => {
-                user = result.recordset[0]
-            }).catch(err => {
-                console(err)
-            })
-        )
+        connection.query(sql, params, (error, results, fields) => {
+            connection.end();
 
-        Promise.all(promises).then(() => {
-            sql.close();
-            console.log(user)
-            res.json(helper.getResponseObject(user, 200, "OK"));
-        });  
-    }).catch(err => {
-        sql.close();
-
-        console.log(err);
-        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"));
-    })
+            if (error) {
+                console.log(error);
+                res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+                return
+            }
+    
+            res.json(helper.getResponseObject(results[0][0], 200, "OK"));
+        });
+    });
 });
 
 module.exports = router;

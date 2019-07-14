@@ -10,130 +10,170 @@ router.get('/SensorId/:SensorId', function(req, res) {
     console.log('receiving data ...');
     console.log('query is ', req.query);
 
-    var query = req.query;
+    var pool = database.getPool();
 
-    sql.connect(config).then(pool => {
-        globalPool = pool
-        return pool.request()
-        .input('SensorId', sql.UniqueIdentifier, req.params.SensorId)
-        .input('StartDate', sql.DateTime, query.StartDate)
-        .input('EndDate', sql.DateTime, query.EndDate)
-        .execute('usp_SensorReading_Get')
-    }).then(result => {
-        var promises = [];
-        result.recordset.forEach(element => {
-            promises.push(globalPool.request()
-                    .input('AirQualityId', sql.UniqueIdentifier, element.AirQualityId)
-                    .execute('usp_AirQuality_Get')
-                    .then(result => {
-                        element.AirQuality = result.recordset[0]
-                        delete element.AirQualityId
-                    }).catch(err => {
-                        console.log(err)
+    pool.getConnection(function(error, connection) {
+        if (error) {
+            console.log(error);
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            return
+        }
+
+        let sql = 'CALL usp_SensorReading_Get(?,?,?)';
+        let params = [req.query.SensorId, req.query.StartDate, req.query.EndDate];
+    
+        connection.query(sql, params, (error, results, fields) => {
+            if (error) {
+                console.log(error);
+                res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+                return
+            }
+
+            var promises = [];
+
+            results[0].forEach(element => {
+                promises.push(
+                    new Promise(function(resolve, reject) {
+                        try {
+                            connection.query('CALL usp_AirQuality_Get(?)', [element.AirQualityId], (error, results, fields) => {
+                                if (error) {
+                                    console.log(error);
+                                    return
+                                }
+    
+                                element.AirQuality = results[0][0]
+                                delete element.AirQualityId
+
+                                return resolve(results[0][0]);
+                            })
+                        } catch (err) {
+                            return reject(err);
+                        }
                     })
                 )
-        })
-
-        Promise.all(promises).then(() => {
-            sql.close()
-        
-            console.log(result)
-            res.json(helper.getResponseObject(result.recordset, 200, "OK"));
-        });
-    }).catch(err => {
-        sql.close();
-
-        console.log(err);
-        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
-    })
+            })
+    
+            Promise.all(promises).then(() => {
+                connection.release()
+            
+                console.log(result)
+                res.json(helper.getResponseObject(results[0], 200, "OK"));
+            });
+        });  
+    });
 });
 
 router.post('/', function(req, res) {
     console.log('receiving data ...');
     console.log('body is ', req.body);
 
-    var body = req.body;
+    var connection = database.getConnection();
 
-    sql.connect(config).then(pool => {
-        return pool.request()
-        .input('SensorId', sql.UniqueIdentifier, body.SensorId)
-        .input('ReadingVolts', sql.Decimal, body.ReadingVolts)
-        .input('SensorResistance', sql.Decimal, body.SensorResistance)
-        .input('KnownConcentrationSensorResistance', sql.Decimal, body.KnownConcentrationSensorResistance)
-        .input('GasPpm', sql.Decimal, body.GasPpm)
-        .execute('usp_SensorReading_Create')
-    }).then(result => {
-        sql.close();
+    let sql = 'CALL usp_SensorReading_Create(?,?,?,?,?)';
+    let params = [
+        req.body.SensorId, 
+        req.body.ReadingVolts,
+        req.body.SensorResistance,
+        req.body.KnownConcentrationSensorResistance,
+        req.body.GasPpm
+    ];
+ 
+    connection.query(sql, params, (error, results, fields) => {
+        if (error) {
+            console.log(error);
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            return
+        }
 
-        console.log(result)
-        res.json(helper.getResponseObject(result.recordset[0], 200, "OK"));
-    }).catch(err => {
-        sql.close();
-
-        console.log(err);
-        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"));
-    })
+        console.log(results[0]);
+        res.json(helper.getResponseObject(results[0], 200, "OK"));
+    });
+    
+    connection.end();
 });
 
 router.get('/Daily/SensorId/:SensorId', function(req, res) {
     console.log('receiving data ...');
     console.log('query is ', req.query);
 
-    var query = req.query;
+    var pool = database.getPool();
 
-    sql.connect(config).then(pool => {
-        globalPool = pool
-        return pool.request()
-        .input('SensorId', sql.UniqueIdentifier, req.params.SensorId)
-        .input('StartDate', sql.DateTime, query.StartDate)
-        .input('EndDate', sql.DateTime, query.EndDate)
-        .execute('usp_SensorReading_GetDailyAverage')
-    }).then(result => {
-        var promises = [];
+    pool.getConnection(function(error, connection) {
+        if (error) {
+            console.log(error);
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            return
+        }
 
-        var SensorId = req.params.SensorId
-        var SensorObject = null;
+        let sql = 'CALL usp_SensorReading_GetDailyAverage(?,?,?)';
+        let params = [req.params.SensorId, req.query.StartDate, req.query.EndDate];
+    
+        connection.query(sql, params, (error, results, fields) => {
+            if (error) {
+                console.log(error);
+                res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+                return
+            }
 
-        promises.push(globalPool.request()
-                .input('SensorId', sql.UniqueIdentifier, SensorId)
-                .execute('usp_Sensor_Get')
-                .then(result => {
-                    SensorObject = result.recordset[0]
-                }).catch(err => {
-                    console.log(err)
+            var promises = [];
+
+            var SensorId = req.params.SensorId
+            var SensorObject = null;
+
+            promises.push(
+                new Promise(function(resolve, reject) {
+                    try {
+                        connection.query('CALL usp_Sensor_Get(?,?)', [SensorId, null], (error, results, fields) => {
+                            if (error) {
+                                console.log(error);
+                                return
+                            }
+
+                            SensorObject = results[0][0]
+
+                            return resolve(results[0][0]);
+                        })
+                    } catch (err) {
+                        return reject(err);
+                    }
                 })
             )
 
-        result.recordset.forEach(element => {
-            promises.push(globalPool.request()
-                    .input('AirQualityId', sql.UniqueIdentifier, element.AirQualityId)
-                    .execute('usp_AirQuality_Get')
-                    .then(result => {
-                        element.AirQuality = result.recordset[0]
-                        delete element.AirQualityId
-                    }).catch(err => {
-                        console.log(err)
+            results[0].forEach(element => {
+                promises.push(
+                    new Promise(function(resolve, reject) {
+                        try {
+                            connection.query('CALL usp_AirQuality_Get(?)', [element.AirQualityId], (error, results, fields) => {
+                                if (error) {
+                                    console.log(error);
+                                    return
+                                }
+    
+                                element.AirQuality = results[0][0]
+                                delete element.AirQualityId
+    
+                                return resolve(results[0][0]);
+                            })
+                        } catch (err) {
+                            return reject(err);
+                        }
                     })
                 )
-        })
-        
-        Promise.all(promises).then(() => {
-            sql.close()        
+            })
+            
+            Promise.all(promises).then(() => {
+                connection.release()       
 
-            var responseData = {
-                Sensor: SensorObject,
-                DailyAverages: result.recordset
-            }
+                var responseData = {
+                    Sensor: SensorObject,
+                    DailyAverages: results[0]
+                }
 
-            console.log(responseData)
-            res.json(helper.getResponseObject(responseData, 200, "OK"));
-        });
-    }).catch(err => {
-        sql.close();
-
-        console.log(err);
-        res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
-    })
+                console.log(responseData)
+                res.json(helper.getResponseObject(responseData, 200, "OK"));
+            });
+        });  
+    });
 });
 
 module.exports = router;
