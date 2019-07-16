@@ -20,7 +20,7 @@ router.get('/SensorId/:SensorId', function(req, res) {
         }
 
         let sql = 'CALL usp_SensorReading_Get(?,?,?)';
-        let params = [req.query.SensorId, req.query.StartDate, req.query.EndDate];
+        let params = [req.params.SensorId, req.query.StartDate, req.query.EndDate];
     
         connection.query(sql, params, (error, results, fields) => {
             if (error) {
@@ -56,7 +56,7 @@ router.get('/SensorId/:SensorId', function(req, res) {
             Promise.all(promises).then(() => {
                 connection.release()
             
-                console.log(result)
+                console.log(results[0])
                 res.json(helper.getResponseObject(results[0], 200, "OK"));
             });
         });  
