@@ -1,29 +1,31 @@
 var express = require("express");
+var bodyParser = require('body-parser');
 var app = express();
+app.use(bodyParser.urlencoded({ extended: false }));
+app.use(bodyParser.json())
 
-var sql = require('mssql/msnodesqlv8');
-var config = {
-  driver: 'msnodesqlv8',
-  connectionString: 'Driver={SQL Server Native Client 11.0};Server={MSI\\SQLEXPRESS};Database={SIMGAS};Trusted_Connection={yes};',
-};
- 
-sql.on('error', err => {
-    // ... error handler
-    console.log(err);
+var sensorReadingRouter = require('./routes/sensor-reading');
+var sensorRouter = require('./routes/sensor');
+var airQualityRouter = require('./routes/air-quality');
+var gasRouter = require('./routes/gas');
+var boardRouter = require('./routes/board');
+var locationRouter = require('./routes/location');
+var userRouter = require('./routes/user');
+var roleRouter = require('./routes/role');
+var sessionRouter = require('./routes/session');
+
+app.use('/SensorReading', sensorReadingRouter);
+app.use('/Sensor', sensorRouter);
+app.use('/AirQuality', airQualityRouter);
+app.use('/Gas', gasRouter);
+app.use('/Board', boardRouter);
+app.use('/Location', locationRouter);
+app.use('/User', userRouter);
+app.use('/Role', roleRouter);
+app.use('/Session', sessionRouter);
+
+app.listen(80, () => {
+ console.log("Server running on port 80");
 })
 
-app.get('/Users', function (req, res) {
-    sql.connect(config).then(pool => {
-        return pool.request()
-        .execute('usp_User_Get')
-    }).then(result => {
-        console.log(result)
-        res.json(result);
-    }).catch(err => {
-        console.log(err);
-    })
- });
-
-app.listen(3000, () => {
- console.log("Server running on port 3000");
-})
+module.exports = app;
