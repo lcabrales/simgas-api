@@ -1,9 +1,9 @@
 var mysql = require('mysql');
 
 var config = {
-  host     : 'localhost',
-  user     : 'root',
-  password : 'admin',
+  host     : 'ls-7f09f4cf79d05140044e361231125e68f520b9bd.cryas4khayxj.us-east-1.rds.amazonaws.com',
+  user     : 'dbmasteruser',
+  password : 'l+zM6;!Wt(Q]b7zyI[sPjKEFOCj*GU4o',
   database : 'simgas',
   connectionLimit : 1000
 }

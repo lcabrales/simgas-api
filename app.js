@@ -24,8 +24,8 @@ app.use('/User', userRouter);
 app.use('/Role', roleRouter);
 app.use('/Session', sessionRouter);
 
-app.listen(80, () => {
- console.log("Server running on port 80");
+app.listen(3000, () => {
+ console.log("Server running on port 3000");
 })
 
 module.exports = app;
