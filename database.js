@@ -5,7 +5,7 @@ var config = {
   user     : 'dbmasteruser',
   password : 'l+zM6;!Wt(Q]b7zyI[sPjKEFOCj*GU4o',
   database : 'simgas',
-  connectionLimit : 1000
+  // connectionLimit : 1000
 }
 
 var getConnection = function (){
