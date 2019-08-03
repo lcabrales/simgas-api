@@ -8,12 +8,12 @@ router.get('/', function(req, res) {
     console.log('receiving data ...');
     console.log('query is ', req.query);
 
-    var connection = database.getConnection();
+    var pool = database.getPool();
 
     let sql = 'CALL usp_User_Get(?,?)';
     let params = [req.query.UserId, req.query.RoleId];
  
-    connection.query(sql, params, (error, results, fields) => {
+    pool.query(sql, params, (error, results, fields) => {
         if (error) {
             console.log(error);
             res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
@@ -23,15 +23,13 @@ router.get('/', function(req, res) {
         console.log(results[0]);
         res.json(helper.getResponseObject(results[0], 200, "OK"));
     });
-    
-    connection.end();
 });
 
 router.post('/', function(req, res) {
     console.log('receiving data ...');
     console.log('body is ', req.body);
 
-    var connection = database.getConnection();
+    var pool = database.getPool();
 
     var passwordHash = bcrypt.hashSync(req.body.Password)
 
@@ -45,7 +43,7 @@ router.post('/', function(req, res) {
         passwordHash
     ];
  
-    connection.query(sql, params, (error, results, fields) => {
+    pool.query(sql, params, (error, results, fields) => {
         if (error) {
             console.log(error);
             res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
@@ -55,15 +53,13 @@ router.post('/', function(req, res) {
         console.log(results[0]);
         res.json(helper.getResponseObject(results[0], 200, "OK"));
     });
-    
-    connection.end();
 });
 
 router.put('/', function(req, res) {
     console.log('receiving data ...');
     console.log('body is ', req.body);
 
-    var connection = database.getConnection();
+    var pool = database.getPool();
 
     var passwordHash = req.body.Password == null ? null : bcrypt.hashSync(req.body.Password)
 
@@ -78,7 +74,7 @@ router.put('/', function(req, res) {
         req.body.LastModifiedBy
     ];
  
-    connection.query(sql, params, (error, results, fields) => {
+    pool.query(sql, params, (error, results, fields) => {
         if (error) {
             console.log(error);
             res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
@@ -88,8 +84,6 @@ router.put('/', function(req, res) {
         console.log(results[0]);
         res.json(helper.getResponseObject(results[0], 200, "OK"));
     });
-    
-    connection.end();
 });
 
 module.exports = router;

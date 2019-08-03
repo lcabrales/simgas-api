@@ -7,12 +7,12 @@ router.get('/', function(req, res) {
     console.log('receiving data ...');
     console.log('query is ', req.query);
 
-    var connection = database.getConnection();
+    var pool = database.getPool();
 
     let sql = 'CALL usp_Gas_Get(?)';
     let params = [req.query.GasId];
  
-    connection.query(sql, params, (error, results, fields) => {
+    pool.query(sql, params, (error, results, fields) => {
         if (error) {
             console.log(error);
             res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
@@ -22,8 +22,6 @@ router.get('/', function(req, res) {
         console.log(results[0]);
         res.json(helper.getResponseObject(results[0], 200, "OK"));
     });
-
-    connection.end();
 });
 
 module.exports = router;
