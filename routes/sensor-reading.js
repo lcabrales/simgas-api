@@ -3,9 +3,6 @@ var router = express.Router();
 var database = require("../database");
 var helper = require("../helper");
 
-var sql = database.sql;
-var config = database.config;
-
 router.get('/SensorId/:SensorId', function(req, res) {
     console.log('receiving data ...');
     console.log('query is ', req.query);
@@ -67,7 +64,7 @@ router.post('/', function(req, res) {
     console.log('receiving data ...');
     console.log('body is ', req.body);
 
-    var connection = database.getConnection();
+    var pool = database.getPool();
 
     let sql = 'CALL usp_SensorReading_Create(?,?,?,?,?)';
     let params = [
@@ -78,7 +75,7 @@ router.post('/', function(req, res) {
         req.body.GasPpm
     ];
  
-    connection.query(sql, params, (error, results, fields) => {
+    pool.query(sql, params, (error, results, fields) => {
         if (error) {
             console.log(error);
             res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
@@ -88,8 +85,6 @@ router.post('/', function(req, res) {
         console.log(results[0]);
         res.json(helper.getResponseObject(results[0], 200, "OK"));
     });
-    
-    connection.end();
 });
 
 router.get('/Daily/SensorId/:SensorId', function(req, res) {

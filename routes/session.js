@@ -8,14 +8,13 @@ router.post('/login', function(req, res) {
     console.log('receiving data ...');
     console.log('body is ', req.body);
 
-    var connection = database.getConnection();
+    var pool = database.getPool();
 
     let sql = 'CALL usp_User_Login(?)';
     let params = [req.body.Username];
  
-    connection.query(sql, params, (error, results, fields) => {
+    pool.query(sql, params, (error, results, fields) => {
         if (error) {
-            connection.end();
             console.log(error);
             res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
             return
@@ -24,7 +23,6 @@ router.post('/login', function(req, res) {
         console.log(results[0]);
 
         if (results.length == 0 || results[0].lenght == 0 || !results[0][0]) {
-            connection.end();
             res.json(helper.getResponseObject(null, 400, "User does not exist"))
             return;
         }
@@ -33,7 +31,6 @@ router.post('/login', function(req, res) {
         var success = bcrypt.compareSync(req.body.Password, passwordHash)
 
         if (!success) {
-            connection.end();
             res.json(helper.getResponseObject(null, 401, "Invalid credentials"))
             return;
         }
@@ -41,9 +38,7 @@ router.post('/login', function(req, res) {
         let sql = 'CALL usp_User_Get(?,?,?)';
         let params = [null, null, req.body.Username];
 
-        connection.query(sql, params, (error, results, fields) => {
-            connection.end();
-
+        pool.query(sql, params, (error, results, fields) => {
             if (error) {
                 console.log(error);
                 res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
