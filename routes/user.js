@@ -33,14 +33,16 @@ router.post('/', function(req, res) {
 
     var passwordHash = bcrypt.hashSync(req.body.Password)
 
-    let sql = 'CALL usp_User_Create(?,?,?,?,?,?)';
+    let sql = 'CALL usp_User_Create(?,?,?,?,?,?,?,?)';
     let params = [
         req.body.RoleId, 
         req.body.Username,
         req.body.FirstName,
         req.body.LastName,
         req.body.Email,
-        passwordHash
+        passwordHash,
+        null,
+        1
     ];
  
     pool.query(sql, params, (error, results, fields) => {
