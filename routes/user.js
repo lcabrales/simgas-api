@@ -52,8 +52,8 @@ router.post('/', function(req, res) {
             return
         }
 
-        console.log(results[0]);
-        res.json(helper.getResponseObject(results[0], 200, "OK"));
+        console.log(results[0][0]);
+        res.json(helper.getResponseObject(results[0][0], 200, "OK"));
     });
 });
 
