@@ -32,7 +32,7 @@ router.get('/SensorId/:SensorId', function(req, res) {
                 promises.push(
                     new Promise(function(resolve, reject) {
                         try {
-                            connection.query('CALL usp_AirQuality_Get(?)', [element.AirQualityId], (error, results, fields) => {
+                            connection.query('CALL usp_AirQuality_Get(?,?)', [element.AirQualityId, null], (error, results, fields) => {
                                 if (error) {
                                     console.log(error);
                                     return
@@ -138,7 +138,7 @@ router.get('/Daily/SensorId/:SensorId', function(req, res) {
                 promises.push(
                     new Promise(function(resolve, reject) {
                         try {
-                            connection.query('CALL usp_AirQuality_Get(?)', [element.AirQualityId], (error, results, fields) => {
+                            connection.query('CALL usp_AirQuality_Get(?,?)', [element.AirQualityId, null], (error, results, fields) => {
                                 if (error) {
                                     console.log(error);
                                     return

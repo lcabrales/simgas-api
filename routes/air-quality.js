@@ -10,7 +10,7 @@ router.get('/', function(req, res) {
     var pool = database.getPool();
 
     let sql = 'CALL usp_AirQuality_Get(?,?)';
-    let params = [req.query.AirQualityId, req.query.GasId];
+    let params = [req.query.AirQualityId ? req.query.AirQualityId : null, req.query.GasId ? req.query.GasId : null];
  
     pool.query(sql, params, (error, results, fields) => {
         if (error) {

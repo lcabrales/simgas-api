@@ -98,7 +98,7 @@ router.get('/', function(req, res) {
                         promises.push(
                             new Promise(function(resolve, reject) {
                                 try {
-                                    connection.query('CALL usp_AirQuality_Get(?)', [element.LastSensorReading.AirQualityId], (error, results, fields) => {
+                                    connection.query('CALL usp_AirQuality_Get(?,?)', [element.LastSensorReading.AirQualityId, null], (error, results, fields) => {
                                         if (error) {
                                             console.log(error);
                                             return
