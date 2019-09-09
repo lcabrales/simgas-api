@@ -5,6 +5,7 @@
   "main": "app.js",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
+    "cors": "^2.8.5",
     "express": "^4.16.4",
     "express4-tedious": "^0.3.0",
     "mysql": "^2.17.1"
