@@ -65,7 +65,7 @@ router.put('/', function(req, res) {
 
     var passwordHash = req.body.Password == null ? null : bcrypt.hashSync(req.body.Password)
 
-    let sql = 'CALL usp_User_Update(?,?,?,?,?,?,?)';
+    let sql = 'CALL usp_User_Update(?,?,?,?,?,?,?,?)';
     let params = [
         req.body.UserId, 
         req.body.RoleId, 
@@ -73,7 +73,8 @@ router.put('/', function(req, res) {
         req.body.LastName,
         req.body.Email,
         passwordHash,
-        req.body.LastModifiedBy
+        req.body.LastModifiedBy,
+        req.body.Status
     ];
  
     pool.query(sql, params, (error, results, fields) => {
