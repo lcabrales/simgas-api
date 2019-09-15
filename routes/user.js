@@ -10,8 +10,8 @@ router.get('/', function(req, res) {
 
     var pool = database.getPool();
 
-    let sql = 'CALL usp_User_Get(?,?)';
-    let params = [req.query.UserId, req.query.RoleId];
+    let sql = 'CALL usp_User_Get(?,?,?)';
+    let params = [req.query.UserId, req.query.RoleId, req.query.Username];
  
     pool.query(sql, params, (error, results, fields) => {
         if (error) {
