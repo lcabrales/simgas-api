@@ -16,8 +16,20 @@ router.get('/SensorId/:SensorId', function(req, res) {
             return
         }
 
-        let sql = 'CALL usp_SensorReading_Get(?,?,?)';
-        let params = [req.params.SensorId, req.query.StartDate, req.query.EndDate];
+        let pageNumber = req.query.PageNumber;
+        if (!pageNumber) pageNumber = 1;
+
+        let pageSize = req.query.PageSize;
+        if (!pageSize) pageSize = 10;
+
+        let sql = 'CALL usp_SensorReading_Get(?,?,?,?,?)';
+        let params = [
+            req.params.SensorId, 
+            req.query.StartDate, 
+            req.query.EndDate, 
+            pageNumber, 
+            pageSize
+        ];
     
         connection.query(sql, params, (error, results, fields) => {
             if (error) {
