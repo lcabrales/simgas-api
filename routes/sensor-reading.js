@@ -15,20 +15,14 @@ router.get('/SensorId/:SensorId', function(req, res) {
             res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
             return
         }
-
-        let pageNumber = req.query.PageNumber;
-        if (!pageNumber) pageNumber = 1;
-
-        let pageSize = req.query.PageSize;
-        if (!pageSize) pageSize = 10;
-
+        
         let sql = 'CALL usp_SensorReading_Get(?,?,?,?,?)';
         let params = [
             req.params.SensorId, 
             req.query.StartDate, 
             req.query.EndDate, 
-            pageNumber, 
-            pageSize
+            req.query.PageNumber, 
+            req.query.PageSize
         ];
     
         connection.query(sql, params, (error, results, fields) => {
