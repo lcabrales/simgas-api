@@ -31,29 +31,70 @@ router.post('/', function(req, res) {
 
     var pool = database.getPool();
 
-    var passwordHash = bcrypt.hashSync(req.body.Password)
-
-    let sql = 'CALL usp_User_Create(?,?,?,?,?,?,?,?)';
-    let params = [
-        req.body.RoleId, 
-        req.body.Username,
-        req.body.FirstName,
-        req.body.LastName,
-        req.body.Email,
-        passwordHash,
-        null,
-        1
-    ];
- 
-    pool.query(sql, params, (error, results, fields) => {
+    pool.getConnection(function(error, connection) {
         if (error) {
             console.log(error);
             res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
             return
         }
+        
+        let sql = 'CALL usp_User_Get(?,?,?)';
+        let params = [req.query.UserId, req.query.RoleId, req.query.Username];
+    
+        connection.query(sql, params, (error, results, fields) => {
+            if (error) {
+                console.log(error);
+                res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+                return
+            }
 
-        console.log(results[0][0]);
-        res.json(helper.getResponseObject(results[0][0], 200, "OK"));
+            if (results[0]) {
+                res.json(helper.getResponseObject(null, 422, "Username is already registered"))
+                return
+            }
+
+            var passwordHash = bcrypt.hashSync(req.body.Password)
+
+            let sql = 'CALL usp_User_Create(?,?,?,?,?,?,?,?)';
+            let params = [
+                req.body.RoleId, 
+                req.body.Username,
+                req.body.FirstName,
+                req.body.LastName,
+                req.body.Email,
+                passwordHash,
+                null,
+                1
+            ];
+
+            var user = null;
+            var promises = [];
+            promises.push(
+                new Promise(function(resolve, reject) {
+                    try {
+                        connection.query(sql, params, (error, results, fields) => {
+                            if (error) {
+                                console.log(error);
+                                return
+                            }
+
+                            user = results[0][0];
+
+                            return resolve(user);
+                        })
+                    } catch (err) {
+                        return reject(err);
+                    }
+                })
+            )
+    
+            Promise.all(promises).then(() => {
+                connection.release()
+            
+                console.log(user)
+                res.json(helper.getResponseObject(user, 200, "OK"));
+            });
+        });  
     });
 });
 
