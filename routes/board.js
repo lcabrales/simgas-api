@@ -15,7 +15,7 @@ router.get('/', function(req, res) {
     pool.query(sql, params, (error, results, fields) => {
         if (error) {
             console.log(error);
-            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido."))
             return
         }
 

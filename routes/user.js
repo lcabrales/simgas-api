@@ -16,7 +16,7 @@ router.get('/', function(req, res) {
     pool.query(sql, params, (error, results, fields) => {
         if (error) {
             console.log(error);
-            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido."))
             return
         }
 
@@ -34,7 +34,7 @@ router.post('/', function(req, res) {
     pool.getConnection(function(error, connection) {
         if (error) {
             console.log(error);
-            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido."))
             return
         }
         
@@ -44,12 +44,12 @@ router.post('/', function(req, res) {
         connection.query(sql, params, (error, results, fields) => {
             if (error) {
                 console.log(error);
-                res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+                res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido."))
                 return
             }
 
             if (results[0]) {
-                res.json(helper.getResponseObject(null, 422, "Username is already registered"))
+                res.json(helper.getResponseObject(null, 422, "El usuario ya existe."))
                 return
             }
 
@@ -121,7 +121,7 @@ router.put('/', function(req, res) {
     pool.query(sql, params, (error, results, fields) => {
         if (error) {
             console.log(error);
-            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido."))
             return
         }
 

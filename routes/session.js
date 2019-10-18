@@ -16,14 +16,14 @@ router.post('/login', function(req, res) {
     pool.query(sql, params, (error, results, fields) => {
         if (error) {
             console.log(error);
-            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+            res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido."))
             return
         }
 
         console.log(results[0]);
 
         if (results.length == 0 || results[0].lenght == 0 || !results[0][0]) {
-            res.json(helper.getResponseObject(null, 400, "User does not exist"))
+            res.json(helper.getResponseObject(null, 400, "Usuario no existe."))
             return;
         }
 
@@ -31,7 +31,7 @@ router.post('/login', function(req, res) {
         var success = bcrypt.compareSync(req.body.Password, passwordHash)
 
         if (!success) {
-            res.json(helper.getResponseObject(null, 401, "Invalid credentials"))
+            res.json(helper.getResponseObject(null, 401, "Usuario o contraseña inválidos."))
             return;
         }
 
@@ -41,7 +41,7 @@ router.post('/login', function(req, res) {
         pool.query(sql, params, (error, results, fields) => {
             if (error) {
                 console.log(error);
-                res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido"))
+                res.json(helper.getResponseObject(null, 500, "Un error ha ocurrido."))
                 return
             }
     
