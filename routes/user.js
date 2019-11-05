@@ -39,7 +39,7 @@ router.post('/', function(req, res) {
         }
         
         let sql = 'CALL usp_User_Exists(?,?)';
-        let params = [req.query.Username, req.query.Email];
+        let params = [req.body.Username, req.body.Email];
     
         connection.query(sql, params, (error, results, fields) => {
             if (error) {
@@ -48,7 +48,8 @@ router.post('/', function(req, res) {
                 return
             }
 
-            if (results[0]) {
+            console.log(results[0][0])
+            if (results[0][0]) {
                 res.json(helper.getResponseObject(null, 422, "El usuario ya existe."))
                 return
             }
