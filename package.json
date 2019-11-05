@@ -1,6 +1,6 @@
 {
   "name": "simgas-api",
-  "version": "1.0.1",
+  "version": "1.0.2",
   "description": "simgas",
   "main": "app.js",
   "dependencies": {
