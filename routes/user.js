@@ -38,8 +38,8 @@ router.post('/', function(req, res) {
             return
         }
         
-        let sql = 'CALL usp_User_Get(?,?,?)';
-        let params = [req.query.UserId, req.query.RoleId, req.query.Username];
+        let sql = 'CALL usp_User_Exists(?,?)';
+        let params = [req.query.Username, req.query.Email];
     
         connection.query(sql, params, (error, results, fields) => {
             if (error) {
